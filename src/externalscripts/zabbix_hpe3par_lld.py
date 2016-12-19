@@ -340,7 +340,7 @@ def output_hosts( sessionKey, sessionHost ):
 	print json.dumps(result, sort_keys=True, indent=4, separators=(',', ': '))    
     
 def print_usage():
-    print 'usage: agent_3parwsapi -H <Host> -U <User> -P <Password> -v <Value> --sshuser <User>'
+    print 'usage: agent_3parwsapi -H <Host> -U <User> -P <Password> -v <Value>'
 
 #   .--Main----------------------------------------------------------------.
 #   |                        __  __       _                                |
@@ -360,10 +360,9 @@ def main( argv ):
     sessionUser = ''
     sessionPassword = ''
     sessionKey = ''
-    sshUser = ''
 
     try:
-        opts, args = getopt.getopt( argv, "hH:hU:hP:hv:hs:", ["Host=", "User=", "Password=", "Value=", "sshuser="])
+        opts, args = getopt.getopt( argv, "hH:hU:hP:hv:hs:", ["Host=", "User=", "Password=", "Value="])
         if not opts:
             print_usage()
             sys.exit(2)
@@ -383,8 +382,6 @@ def main( argv ):
             sessionUser = arg
         elif opt in ("-P", "--Post"):
             sessionPassword = arg
-        elif opt in ("-s", "--sshuser"):
-            sshUser = arg
 
     if sessionHost == "" or sessionUser == "" or sessionPassword == "":
         print_usage()
@@ -395,11 +392,7 @@ def main( argv ):
 
         if "hosts" in fetchValue:
         	output_hosts( sessionKey, sessionHost )
-        
-        if sshUser != "":
-        	cmdSsh = "%s/agent_3parssh %s %s" % ( os.path.dirname(__file__), sessionHost, sshUser )
-        	print subprocess.check_output( cmdSsh, shell=True, executable='/bin/bash' )
-        
+
     except:
         print("Unexpected error:", sys.exc_info()[0])
         if sessionKey != "":
@@ -411,22 +404,3 @@ def main( argv ):
 
 if __name__ == "__main__":
     main(sys.argv[1:])
-
-#{
-#  "data":[
-#  
-#  { "{#FSNAME}":"/",                           "{#FSTYPE}":"rootfs"   },
-#  { "{#FSNAME}":"/sys",                        "{#FSTYPE}":"sysfs"    },
-#  { "{#FSNAME}":"/proc",                       "{#FSTYPE}":"proc"     },
-#  { "{#FSNAME}":"/dev",                        "{#FSTYPE}":"devtmpfs" },
-#  { "{#FSNAME}":"/dev/pts",                    "{#FSTYPE}":"devpts"   },
-#  { "{#FSNAME}":"/lib/init/rw",                "{#FSTYPE}":"tmpfs"    },
-#  { "{#FSNAME}":"/dev/shm",                    "{#FSTYPE}":"tmpfs"    },
-#  { "{#FSNAME}":"/home",                       "{#FSTYPE}":"ext3"     },
-#  { "{#FSNAME}":"/tmp",                        "{#FSTYPE}":"ext3"     },
-#  { "{#FSNAME}":"/usr",                        "{#FSTYPE}":"ext3"     },
-#  { "{#FSNAME}":"/var",                        "{#FSTYPE}":"ext3"     },
-#  { "{#FSNAME}":"/sys/fs/fuse/connections",    "{#FSTYPE}":"fusectl"  }
-#  
-#  ]
-#}
