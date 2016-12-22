@@ -37,7 +37,23 @@ def output_cpgs( sessionKey, sessionHost ):
 
     #   result["data"].append( hosts )
     print json.dumps(result, sort_keys=True, indent=4, separators=(',', ': '))
-    
+
+def output_volumes( sessionKey, sessionHost ):
+    volumes = zabbix_hpe3par_inc.get_volumes( sessionKey, sessionHost )
+
+    result = { "data": [] }
+
+    for member in volumes["members"]:
+        result["data"].append(
+                {
+                    "{#VOLUMENAME}": member["name"],
+                    "{#VOLUMEUUID}": member["uuid"]
+                }
+            )
+
+    #   result["data"].append( hosts )
+    print json.dumps(result, sort_keys=True, indent=4, separators=(',', ': '))
+
 def print_usage():
     print 'usage: zabbix_hpe3par_lld -H <Host> -U <User> -P <Password> -S <Value>'
 
@@ -94,6 +110,9 @@ def main( argv ):
 
         if "cpgs" in fetchValue:
             output_cpgs( sessionKey, sessionHost )
+
+        if "volumes" in fetchValue:
+            output_volumes( sessionKey, sessionHost )
 
     except:
         print("Unexpected error:", sys.exc_info()[0])
