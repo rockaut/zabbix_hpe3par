@@ -8,6 +8,9 @@ import tempfile
 
 import zabbix_hpe3par_inc
 
+def print_usage():
+    print 'usage: -H <Host> -U <User> -P <Password> -S <Set> -I <ZabbixItemname>'
+    
 #   .--Main----------------------------------------------------------------.
 #   |                        __  __       _                                |
 #   |                       |  \/  | __ _(_)_ __                           |

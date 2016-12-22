@@ -21,9 +21,25 @@ def output_hosts( sessionKey, sessionHost ):
 
 	#	result["data"].append( hosts )
 	print json.dumps(result, sort_keys=True, indent=4, separators=(',', ': '))
+
+def output_cpgs( sessionKey, sessionHost ):
+    cpgs = zabbix_hpe3par_inc.get_cpgs( sessionKey, sessionHost )
+
+    result = { "data": [] }
+
+    for member in cpgs["members"]:
+        result["data"].append(
+                {
+                    "{#CPGNAME}": member["name"],
+                    "{#CPGUUID}": member["uuid"]
+                }
+            )
+
+    #   result["data"].append( hosts )
+    print json.dumps(result, sort_keys=True, indent=4, separators=(',', ': '))
     
 def print_usage():
-    print 'usage: agent_3parwsapi -H <Host> -U <User> -P <Password> -v <Value>'
+    print 'usage: zabbix_hpe3par_lld -H <Host> -U <User> -P <Password> -S <Value>'
 
 #   .--Main----------------------------------------------------------------.
 #   |                        __  __       _                                |
@@ -34,10 +50,10 @@ def print_usage():
 #   |                                                                      |
 #   +----------------------------------------------------------------------+
 
-_defaultValue = [ "system" ]
+_defaultSet = [ "system" ]
 
 def main( argv ):
-    fetchValue = _defaultValue
+    fetchValue = _defaultSet
 
     sessionHost = ''
     sessionUser = ''
@@ -45,7 +61,7 @@ def main( argv ):
     sessionKey = ''
 
     try:
-        opts, args = getopt.getopt( argv, "hH:hU:hP:hv:hs:", ["Host=", "User=", "Password=", "Value="])
+        opts, args = getopt.getopt( argv, "hH:U:P:S:", ["Host=", "User=", "Password=", "Set="])
         if not opts:
             print_usage()
             sys.exit(2)
@@ -59,7 +75,7 @@ def main( argv ):
             sys.exit()
         elif opt in ("-H", "--Host"):
             sessionHost = arg
-        elif opt in ("-v", "--Values"):
+        elif opt in ("-S", "--Set"):
             fetchValue = arg.split(",")
         elif opt in ("-U", "--User"):
             sessionUser = arg
@@ -75,6 +91,9 @@ def main( argv ):
 
         if "hosts" in fetchValue:
         	output_hosts( sessionKey, sessionHost )
+
+        if "cpgs" in fetchValue:
+            output_cpgs( sessionKey, sessionHost )
 
     except:
         print("Unexpected error:", sys.exc_info()[0])

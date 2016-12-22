@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <zabbix_export>
     <version>3.2</version>
-    <date>2016-12-19T15:37:01Z</date>
+    <date>2016-12-22T08:17:25Z</date>
     <groups>
         <group>
             <name>Templates</name>
@@ -19,10 +19,57 @@
             </groups>
             <applications>
                 <application>
+                    <name>Fetch Values</name>
+                </application>
+                <application>
                     <name>Hosts</name>
                 </application>
             </applications>
-            <items/>
+            <items>
+                <item>
+                    <name>Fetch Values</name>
+                    <type>10</type>
+                    <snmp_community/>
+                    <multiplier>0</multiplier>
+                    <snmp_oid/>
+                    <key>zabbix_hpe3par_checks.py[-H,{HOST.IP},-U,{$USERNAME},-P,{$PASSWORD},-S,hosts,-I,{HOST.HOST}]</key>
+                    <delay>120</delay>
+                    <history>7</history>
+                    <trends>0</trends>
+                    <status>0</status>
+                    <value_type>4</value_type>
+                    <allowed_hosts/>
+                    <units/>
+                    <delta>0</delta>
+                    <snmpv3_contextname/>
+                    <snmpv3_securityname/>
+                    <snmpv3_securitylevel>0</snmpv3_securitylevel>
+                    <snmpv3_authprotocol>0</snmpv3_authprotocol>
+                    <snmpv3_authpassphrase/>
+                    <snmpv3_privprotocol>0</snmpv3_privprotocol>
+                    <snmpv3_privpassphrase/>
+                    <formula>1</formula>
+                    <delay_flex/>
+                    <params/>
+                    <ipmi_sensor/>
+                    <data_type>0</data_type>
+                    <authtype>0</authtype>
+                    <username/>
+                    <password/>
+                    <publickey/>
+                    <privatekey/>
+                    <port/>
+                    <description/>
+                    <inventory_link>0</inventory_link>
+                    <applications>
+                        <application>
+                            <name>Fetch Values</name>
+                        </application>
+                    </applications>
+                    <valuemap/>
+                    <logtimefmt/>
+                </item>
+            </items>
             <discovery_rules>
                 <discovery_rule>
                     <name>Discover Hosts</name>
@@ -30,7 +77,7 @@
                     <snmp_community/>
                     <snmp_oid/>
                     <key>zabbix_hpe3par_lld.py[-H,{HOST.IP},-U,{$USERNAME},-P,{$PASSWORD},-v,hosts]</key>
-                    <delay>3600</delay>
+                    <delay>600</delay>
                     <status>0</status>
                     <allowed_hosts/>
                     <snmpv3_contextname/>
