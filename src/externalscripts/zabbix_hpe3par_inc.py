@@ -323,6 +323,3 @@ def get_sysrep_portstatistics( sessionKey, sessionHost, sessionPort = 8080 ):
     parsed_response = json.loads( responseData )
 
     return parsed_response
-
-def print_usage():
-    print 'usage: -H <Host> -U <User> -P <Password> -S <Set> -I <ZabbixItemname>'
