@@ -19,7 +19,6 @@ def output_hosts( sessionKey, sessionHost ):
 				}
 			)
 
-	#	result["data"].append( hosts )
 	print json.dumps(result, sort_keys=True, indent=4, separators=(',', ': '))
 
 def output_cpgs( sessionKey, sessionHost ):
@@ -35,7 +34,6 @@ def output_cpgs( sessionKey, sessionHost ):
                 }
             )
 
-    #   result["data"].append( hosts )
     print json.dumps(result, sort_keys=True, indent=4, separators=(',', ': '))
 
 def output_volumes( sessionKey, sessionHost ):
@@ -51,7 +49,33 @@ def output_volumes( sessionKey, sessionHost ):
                 }
             )
 
-    #   result["data"].append( hosts )
+    print json.dumps(result, sort_keys=True, indent=4, separators=(',', ': '))
+
+def output_ports( sessionKey, sessionHost ):
+    ports = zabbix_hpe3par_inc.get_ports( sessionKey, sessionHost )
+    result = { "data": [] }
+
+    for member in ports["members"]:
+        memberpos = "%s:%s:%s" % ( member["portPos"]["node"], member["portPos"]["slot"], member["portPos"]["cardPort"] )
+
+        if "label" in member:
+            label = member["label"]
+        else:
+            label = memberpos
+
+        if "portWWN" in member:
+            puuid = member["portWWN"]
+        else:
+            puuid = member["HWAddr"]
+
+        result["data"].append(
+                {
+                    "{#PORTLABEL}": label,
+                    "{#PORTPOS}": memberpos,
+                    "{#PORTUUID}": puuid
+                }
+            )
+
     print json.dumps(result, sort_keys=True, indent=4, separators=(',', ': '))
 
 def print_usage():
@@ -113,6 +137,9 @@ def main( argv ):
 
         if "volumes" in fetchValue:
             output_volumes( sessionKey, sessionHost )
+
+        if "ports" in fetchValue:
+            output_ports( sessionKey, sessionHost )
 
     except:
         print("Unexpected error:", sys.exc_info()[0])
