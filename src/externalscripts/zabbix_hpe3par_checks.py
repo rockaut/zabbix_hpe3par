@@ -35,15 +35,15 @@ def main( argv ):
     try:
         opts, args = getopt.getopt( argv, "hH:U:P:S:I:v:", ["Host=", "User=", "Password=", "Set=", "Itemname=","verbose="] )
         if not opts:
-            zabbix_hpe3par_inc.print_usage()
+            print_usage()
             sys.exit(2)
     except getopt.GetoptError:
-        zabbix_hpe3par_inc.print_usage()
+        print_usage()
         sys.exit(2)
 
     for opt, arg in opts:
         if opt == '-h':
-            zabbix_hpe3par_inc.print_usage()
+            print_usage()
             sys.exit()
         elif opt in ("-H", "--Host"):
             sessionHost = arg
@@ -67,7 +67,7 @@ def main( argv ):
             print " - sessionPassword missing"
         if itemname == "":
             print " - itemname missing"
-        zabbix_hpe3par_inc.print_usage()
+        print_usage()
         sys.exit(2)
 
     try:

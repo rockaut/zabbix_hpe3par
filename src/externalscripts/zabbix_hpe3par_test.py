@@ -8,9 +8,20 @@ import tempfile
 
 import zabbix_hpe3par_inc
 
+def write_host_values( tempfile, sessionKey, sessionHost ):
+    hosts = zabbix_hpe3par_inc.get_hosts( sessionKey, sessionHost )
+    senderLine = ""
+    for member in hosts["members"]:
+        if senderLine != "":
+            xtempfile.write( "\n" )
+        senderLine = "%s hpe3par.host.ports[%s] %s" % ( itemname, member["name"], len(member["FCPaths"]) )
+        xtempfile.write( senderLine )
+
+    xtempfile.flush()
+
 def print_usage():
     print 'usage: -H <Host> -U <User> -P <Password> -S <Set> -I <ZabbixItemname>'
-    
+
 #   .--Main----------------------------------------------------------------.
 #   |                        __  __       _                                |
 #   |                       |  \/  | __ _(_)_ __                           |
@@ -35,15 +46,15 @@ def main( argv ):
     try:
         opts, args = getopt.getopt( argv, "hH:U:P:S:I:v:", ["Host=", "User=", "Password=", "Set=", "Itemname=","verbose="] )
         if not opts:
-            zabbix_hpe3par_inc.print_usage()
+            print_usage()
             sys.exit(2)
     except getopt.GetoptError:
-        zabbix_hpe3par_inc.print_usage()
+        print_usage()
         sys.exit(2)
 
     for opt, arg in opts:
         if opt == '-h':
-            zabbix_hpe3par_inc.print_usage()
+            print_usage()
             sys.exit()
         elif opt in ("-H", "--Host"):
             sessionHost = arg
@@ -67,39 +78,30 @@ def main( argv ):
             print " - sessionPassword missing"
         if itemname == "":
             print " - itemname missing"
-        zabbix_hpe3par_inc.print_usage()
+        print_usage()
         sys.exit(2)
 
     try:
         sessionKey = zabbix_hpe3par_inc.get_cred( sessionHost, sessionUser, sessionPassword )
-
-        hosts = zabbix_hpe3par_inc.get_hosts( sessionKey, sessionHost )
-        #hostsjson = json.dumps(hosts, sort_keys=True, indent=4, separators=(',', ': '))
 
         print tempfile.gettempdir()
 
         xtempfile = tempfile.NamedTemporaryFile(delete=True)
 
         print 'File: ', xtempfile.name
-                
-        senderLine = ""
-        for member in hosts["members"]:
-            if senderLine != "":
-                xtempfile.write( "\n" )
-            senderLine = "%s hpe3par.host.ports[%s] %s" % ( itemname, member["name"], len(member["FCPaths"]) )
-            xtempfile.write( senderLine )
 
-        xtempfile.flush()
+        if "hosts" in fetchSet:
+            write_host_values( xtempfile, sessionKey, sessionHost )   
 
         xtempfile.seek(0)
         print 'Content: ', xtempfile.read()
 
-        cmdSend = "zabbix_sender -z %s -i %s" % ( "127.0.0.1", xtempfile.name )
-        if verbose != 0:
-            cmdSend +=  " -vv"
-            print subprocess.check_output( cmdSend, shell=True, executable='/bin/bash' )
-        else:
-            result = subprocess.check_output( cmdSend, shell=True, executable='/bin/bash' )
+        #cmdSend = "zabbix_sender -z %s -i %s" % ( "127.0.0.1", xtempfile.name )
+        #if verbose != 0:
+        #    cmdSend +=  " -vv"
+        #    print subprocess.check_output( cmdSend, shell=True, executable='/bin/bash' )
+        #else:
+        #    result = subprocess.check_output( cmdSend, shell=True, executable='/bin/bash' )
 
     except:
         print("Unexpected error:", sys.exc_info()[0])
