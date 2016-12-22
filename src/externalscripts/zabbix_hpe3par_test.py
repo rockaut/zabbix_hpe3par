@@ -73,13 +73,12 @@ def main( argv ):
         hosts = zabbix_hpe3par_inc.get_hosts( sessionKey, sessionHost )
         #hostsjson = json.dumps(hosts, sort_keys=True, indent=4, separators=(',', ': '))
 
-        #print tempfile.gettempdir()
+        print tempfile.gettempdir()
 
         xtempfile = tempfile.NamedTemporaryFile(delete=True)
 
-        #print 'File: ', xtempfile.name
-        #xtempfile.write( hostsjson )
-        
+        print 'File: ', xtempfile.name
+                
         senderLine = ""
         for member in hosts["members"]:
             if senderLine != "":
@@ -90,7 +89,7 @@ def main( argv ):
         xtempfile.flush()
 
         xtempfile.seek(0)
-        #print 'Content: ', xtempfile.read()
+        print 'Content: ', xtempfile.read()
 
         cmdSend = "zabbix_sender -z %s -i %s" % ( "127.0.0.1", xtempfile.name )
         if verbose != 0:

@@ -20,7 +20,7 @@ def output_hosts( sessionKey, sessionHost ):
 			)
 
 	#	result["data"].append( hosts )
-	print json.dumps(result, sort_keys=True, indent=4, separators=(',', ': '))    
+	print json.dumps(result, sort_keys=True, indent=4, separators=(',', ': '))
     
 def print_usage():
     print 'usage: agent_3parwsapi -H <Host> -U <User> -P <Password> -v <Value>'
