@@ -1,23 +1,38 @@
 #!/usr/bin/env python
 # -*- encoding: utf-8; py-indent-offset: 4 -*-
 
-import httplib, urllib2, pprint, sys, os, getopt, socket
+import httplib, urllib2, pprint, sys, os, getopt, socket, time
 import simplejson as json
 import subprocess
 import tempfile
 
 import zabbix_hpe3par_inc
 
-def write_host_values( tempfile, sessionKey, sessionHost ):
+def write_host_values( sessionKey, sessionHost, ZabbixItemname ):
     hosts = zabbix_hpe3par_inc.get_hosts( sessionKey, sessionHost )
+    entries = []
     senderLine = ""
     for member in hosts["members"]:
-        if senderLine != "":
-            xtempfile.write( "\n" )
-        senderLine = "%s hpe3par.host.ports[%s] %s" % ( itemname, member["name"], len(member["FCPaths"]) )
-        xtempfile.write( senderLine )
+        senderLine = "%s hpe3par.host.ports[%s] %s" % ( ZabbixItemname, member["name"], len(member["FCPaths"]) )
+        entries.append( senderLine )
+    
+    return entries
 
-    xtempfile.flush()
+def write_system_values( sessionKey, sessionHost, ZabbixItemname ):
+    system = zabbix_hpe3par_inc.get_system( sessionKey, sessionHost )
+
+    entries = []
+    senderLine = ""
+
+    if "totalNodes" in system:
+        senderLine = "%s hpe3par.system.totalNodes %s" % ( ZabbixItemname, system["totalNodes"] )
+        entries.append( senderLine )
+
+    if "failedCapacityMiB" in system:
+        senderLine = "%s hpe3par.system.failedCapacityMiB %s" % ( ZabbixItemname, system["failedCapacityMiB"] )
+        entries.append( senderLine )
+
+    return entries
 
 def print_usage():
     print 'usage: -H <Host> -U <User> -P <Password> -S <Set> -I <ZabbixItemname>'
@@ -32,6 +47,8 @@ def print_usage():
 #   +----------------------------------------------------------------------+
 
 _defaultSet = [ "system" ]
+_start = time.time()
+_end = time.time()
 
 def main( argv ):
     fetchSet = _defaultSet
@@ -42,9 +59,11 @@ def main( argv ):
     sessionKey = ''
     itemname = ''
     verbose = 0
+    transfer = 1
+    entries = []
 
     try:
-        opts, args = getopt.getopt( argv, "hH:U:P:S:I:v:", ["Host=", "User=", "Password=", "Set=", "Itemname=","verbose="] )
+        opts, args = getopt.getopt( argv, "hH:U:P:S:I:vx", ["Host=", "User=", "Password=", "Set=", "Itemname="] )
         if not opts:
             print_usage()
             sys.exit(2)
@@ -67,7 +86,9 @@ def main( argv ):
         elif opt in ("-I", "--Itemname"):
             itemname = arg
         elif opt in ("-v", "--Verbose"):
-            verbose = arg
+            verbose = 1
+        elif opt in ("-x"):
+            transfer = 0
 
     if sessionHost == "" or sessionUser == "" or sessionPassword == "" or itemname == "":
         if sessionHost == "":
@@ -84,24 +105,38 @@ def main( argv ):
     try:
         sessionKey = zabbix_hpe3par_inc.get_cred( sessionHost, sessionUser, sessionPassword )
 
-        print tempfile.gettempdir()
-
         xtempfile = tempfile.NamedTemporaryFile(delete=True)
 
-        print 'File: ', xtempfile.name
-
         if "hosts" in fetchSet:
-            write_host_values( xtempfile, sessionKey, sessionHost )   
+            entries += ( write_host_values( sessionKey, sessionHost, itemname ) )
 
+        if "system" in fetchSet:
+            entries += ( write_system_values( sessionKey, sessionHost, itemname ) )
+
+        if verbose != 0:
+            print entries
+        
+        strin = '\n'.join( entries )
+        xtempfile.write( strin )
+        xtempfile.flush
         xtempfile.seek(0)
-        print 'Content: ', xtempfile.read()
 
-        #cmdSend = "zabbix_sender -z %s -i %s" % ( "127.0.0.1", xtempfile.name )
-        #if verbose != 0:
-        #    cmdSend +=  " -vv"
-        #    print subprocess.check_output( cmdSend, shell=True, executable='/bin/bash' )
-        #else:
-        #    result = subprocess.check_output( cmdSend, shell=True, executable='/bin/bash' )
+        if verbose != 0:
+            print '---------- Content ----------\n', xtempfile.read()
+
+        try:
+            if transfer != 0:
+                cmdSend = "zabbix_sender -z %s -i %s" % ( "127.0.0.1", xtempfile.name )
+                if verbose != 0:
+                    cmdSend +=  " -vv"
+                    print subprocess.check_output( cmdSend, shell=True, executable='/bin/bash' )
+                else:
+                    result = subprocess.call( cmdSend, executable='/bin/bash', shell=True )
+        except subprocess.CalledProcessError:
+            print "ERROR", sys.exc_info()
+        finally:
+            if xtempfile != "":
+                xtempfile.close()
 
     except:
         print("Unexpected error:", sys.exc_info()[0])
@@ -114,6 +149,9 @@ def main( argv ):
     finally:
         if xtempfile != "":
             xtempfile.close()
+
+        _end = time.time()
+        print( _end - _start )
 
 if __name__ == "__main__":
     main(sys.argv[1:])
