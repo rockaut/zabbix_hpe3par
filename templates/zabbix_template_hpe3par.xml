@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <zabbix_export>
     <version>3.2</version>
-    <date>2016-12-22T14:56:03Z</date>
+    <date>2016-12-23T09:53:39Z</date>
     <groups>
         <group>
             <name>Templates</name>
@@ -45,6 +45,92 @@
                     <multiplier>1</multiplier>
                     <snmp_oid/>
                     <key>hpe3par.system.failedCapacityMiB</key>
+                    <delay>0</delay>
+                    <history>90</history>
+                    <trends>365</trends>
+                    <status>0</status>
+                    <value_type>3</value_type>
+                    <allowed_hosts/>
+                    <units>B</units>
+                    <delta>0</delta>
+                    <snmpv3_contextname/>
+                    <snmpv3_securityname/>
+                    <snmpv3_securitylevel>0</snmpv3_securitylevel>
+                    <snmpv3_authprotocol>0</snmpv3_authprotocol>
+                    <snmpv3_authpassphrase/>
+                    <snmpv3_privprotocol>0</snmpv3_privprotocol>
+                    <snmpv3_privpassphrase/>
+                    <formula>1048576</formula>
+                    <delay_flex/>
+                    <params/>
+                    <ipmi_sensor/>
+                    <data_type>0</data_type>
+                    <authtype>0</authtype>
+                    <username/>
+                    <password/>
+                    <publickey/>
+                    <privatekey/>
+                    <port/>
+                    <description/>
+                    <inventory_link>0</inventory_link>
+                    <applications>
+                        <application>
+                            <name>System</name>
+                        </application>
+                    </applications>
+                    <valuemap/>
+                    <logtimefmt/>
+                </item>
+                <item>
+                    <name>Master Node</name>
+                    <type>2</type>
+                    <snmp_community/>
+                    <multiplier>0</multiplier>
+                    <snmp_oid/>
+                    <key>hpe3par.system.masterNode</key>
+                    <delay>0</delay>
+                    <history>90</history>
+                    <trends>365</trends>
+                    <status>0</status>
+                    <value_type>3</value_type>
+                    <allowed_hosts/>
+                    <units/>
+                    <delta>0</delta>
+                    <snmpv3_contextname/>
+                    <snmpv3_securityname/>
+                    <snmpv3_securitylevel>0</snmpv3_securitylevel>
+                    <snmpv3_authprotocol>0</snmpv3_authprotocol>
+                    <snmpv3_authpassphrase/>
+                    <snmpv3_privprotocol>0</snmpv3_privprotocol>
+                    <snmpv3_privpassphrase/>
+                    <formula>1</formula>
+                    <delay_flex/>
+                    <params/>
+                    <ipmi_sensor/>
+                    <data_type>0</data_type>
+                    <authtype>0</authtype>
+                    <username/>
+                    <password/>
+                    <publickey/>
+                    <privatekey/>
+                    <port/>
+                    <description/>
+                    <inventory_link>0</inventory_link>
+                    <applications>
+                        <application>
+                            <name>System</name>
+                        </application>
+                    </applications>
+                    <valuemap/>
+                    <logtimefmt/>
+                </item>
+                <item>
+                    <name>System Total Capacity</name>
+                    <type>2</type>
+                    <snmp_community/>
+                    <multiplier>1</multiplier>
+                    <snmp_oid/>
+                    <key>hpe3par.system.totalCapacityMiB</key>
                     <delay>0</delay>
                     <history>90</history>
                     <trends>365</trends>
@@ -130,7 +216,7 @@
                     <snmp_community/>
                     <multiplier>0</multiplier>
                     <snmp_oid/>
-                    <key>zabbix_hpe3par_checks.py[-H,{HOST.IP},-U,{$USERNAME},-P,{$PASSWORD},-S,&quot;hosts,system&quot;,-I,{HOST.HOST}]</key>
+                    <key>zabbix_hpe3par_checks.py[-H,{HOST.IP},-U,{$USERNAME},-P,{$PASSWORD},-S,&quot;hosts,system,cpgs&quot;,-I,{HOST.HOST}]</key>
                     <delay>120</delay>
                     <history>7</history>
                     <trends>0</trends>
@@ -242,7 +328,9 @@
                                     <name>CPGs</name>
                                 </application>
                             </applications>
-                            <valuemap/>
+                            <valuemap>
+                                <name>HPE 3Par CPG States</name>
+                            </valuemap>
                             <logtimefmt/>
                             <application_prototypes/>
                         </item_prototype>
@@ -506,4 +594,23 @@ PortWWN/HWAddr: {#PORTUUID}</description>
             <screens/>
         </template>
     </templates>
+    <value_maps>
+        <value_map>
+            <name>HPE 3Par CPG States</name>
+            <mappings>
+                <mapping>
+                    <value>Degraded</value>
+                    <newvalue>2</newvalue>
+                </mapping>
+                <mapping>
+                    <value>Failed</value>
+                    <newvalue>3</newvalue>
+                </mapping>
+                <mapping>
+                    <value>Normal</value>
+                    <newvalue>1</newvalue>
+                </mapping>
+            </mappings>
+        </value_map>
+    </value_maps>
 </zabbix_export>
