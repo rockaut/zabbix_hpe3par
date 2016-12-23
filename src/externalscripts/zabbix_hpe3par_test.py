@@ -18,6 +18,16 @@ def write_host_values( sessionKey, sessionHost, ZabbixItemname ):
     
     return entries
 
+def write_cpg_values( sessionKey, sessionHost, ZabbixItemname ):
+    cpgs = zabbix_hpe3par_inc.get_cpgs( sessionKey, sessionHost )
+    entries = []
+    senderLine = ""
+    for member in cpgs["members"]:
+        senderLine = "%s hpe3par.cpg.state[%s] %s" % ( ZabbixItemname, member["name"], member["state"] )
+        entries.append( senderLine )
+    
+    return entries
+
 def write_system_values( sessionKey, sessionHost, ZabbixItemname ):
     system = zabbix_hpe3par_inc.get_system( sessionKey, sessionHost )
 
@@ -110,6 +120,9 @@ def main( argv ):
 
         if "system" in fetchSet:
             entries += ( write_system_values( sessionKey, sessionHost, itemname ) )
+
+        if "cpgs" in fetchSet:
+            entries += ( write_cpg_values( sessionKey, sessionHost, itemname ) )
 
         if verbose != 0:
             print entries
