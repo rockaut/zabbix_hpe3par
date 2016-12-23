@@ -24,10 +24,10 @@ def write_system_values( sessionKey, sessionHost, ZabbixItemname ):
     entries = []
     senderLine = ""
 
-    props = [ "totalNodes", "failedCapacityMiB", "totalCapacityMiB", "masternode" ]
+    props = [ "totalNodes", "failedCapacityMiB", "totalCapacityMiB", "masterNode" ]
 
     for prop in props:
-        senderLine = "%s hpe3par.system.%s %s" % ( ZabbixItemname, prop, system["totalNodes"] )
+        senderLine = "%s hpe3par.system.%s %s" % ( ZabbixItemname, prop, system[prop] )
         entries.append( senderLine )
 
     return entries
