@@ -25,6 +25,10 @@ def write_cpg_values( sessionKey, sessionHost, ZabbixItemname ):
     for member in cpgs["members"]:
         senderLine = "%s hpe3par.cpg.state[%s] %s" % ( ZabbixItemname, member["name"], member["state"] )
         entries.append( senderLine )
+        senderLine = "%s hpe3par.cpg.UsrUsage.totalMib[%s] %s" % ( ZabbixItemname, member["name"], member["UsrUsage"]["totalMiB"] )
+        entries.append( senderLine )
+        senderLine = "%s hpe3par.cpg.UsrUsage.usedMiB[%s] %s" % ( ZabbixItemname, member["name"], member["UsrUsage"]["usedMiB"] )
+        entries.append( senderLine )
     
     return entries
 
