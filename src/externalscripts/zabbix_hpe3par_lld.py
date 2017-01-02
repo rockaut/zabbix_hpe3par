@@ -21,12 +21,18 @@ def output_hosts( sessionKey, sessionHost ):
 
 	print json.dumps(result, sort_keys=True, indent=4, separators=(',', ': '))
 
-def output_cpgs( sessionKey, sessionHost ):
+def output_cpgs( sessionKey, sessionHost, cpgOptions ):
     cpgs = zabbix_hpe3par_inc.get_cpgs( sessionKey, sessionHost )
 
     result = { "data": [] }
 
+    cpgOptions = int(cpgOptions)
+
     for member in cpgs["members"]:
+
+        if cpgOptions == 1 and member["UsrUsage"]["totalMiB"] <= 0:
+            continue
+
         result["data"].append(
                 {
                     "{#CPGNAME}": member["name"],
@@ -79,7 +85,7 @@ def output_ports( sessionKey, sessionHost ):
     print json.dumps(result, sort_keys=True, indent=4, separators=(',', ': '))
 
 def print_usage():
-    print 'usage: zabbix_hpe3par_lld -H <Host> -U <User> -P <Password> -S <Value>'
+    print 'usage: zabbix_hpe3par_lld -H <Host> -U <User> -P <Password> -S <Value> -c <Value>'
 
 #   .--Main----------------------------------------------------------------.
 #   |                        __  __       _                                |
@@ -100,8 +106,10 @@ def main( argv ):
     sessionPassword = ''
     sessionKey = ''
 
+    cpgOptions = 1
+
     try:
-        opts, args = getopt.getopt( argv, "hH:U:P:S:", ["Host=", "User=", "Password=", "Set="])
+        opts, args = getopt.getopt( argv, "hH:U:P:S:c:", ["Host=", "User=", "Password=", "Set=", "CpgOptions="])
         if not opts:
             print_usage()
             sys.exit(2)
@@ -121,6 +129,8 @@ def main( argv ):
             sessionUser = arg
         elif opt in ("-P", "--Post"):
             sessionPassword = arg
+        elif opt in ("-c", "--CpgOptions"):
+            cpgOptions = arg
 
     if sessionHost == "" or sessionUser == "" or sessionPassword == "":
         print_usage()
@@ -133,7 +143,7 @@ def main( argv ):
         	output_hosts( sessionKey, sessionHost )
 
         if "cpgs" in fetchValue:
-            output_cpgs( sessionKey, sessionHost )
+            output_cpgs( sessionKey, sessionHost, cpgOptions )
 
         if "volumes" in fetchValue:
             output_volumes( sessionKey, sessionHost )
