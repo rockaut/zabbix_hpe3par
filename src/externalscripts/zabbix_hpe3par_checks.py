@@ -18,11 +18,16 @@ def write_host_values( sessionKey, sessionHost, ZabbixItemname ):
     
     return entries
 
-def write_cpg_values( sessionKey, sessionHost, ZabbixItemname ):
+def write_cpg_values( sessionKey, sessionHost, ZabbixItemname, cpgOptions ):
     cpgs = zabbix_hpe3par_inc.get_cpgs( sessionKey, sessionHost )
     entries = []
     senderLine = ""
+    cpgOptions = int(cpgOptions)
+
     for member in cpgs["members"]:
+        if cpgOptions == 1 and member["UsrUsage"]["totalMiB"] <= 0:
+            continue
+
         senderLine = "%s hpe3par.cpg.state[%s] %s" % ( ZabbixItemname, member["name"], member["state"] )
         entries.append( senderLine )
         senderLine = "%s hpe3par.cpg.UsrUsage.totalMib[%s] %s" % ( ZabbixItemname, member["name"], member["UsrUsage"]["totalMiB"] )
@@ -73,9 +78,10 @@ def main( argv ):
     verbose = 0
     transfer = 1
     entries = []
+    cpgOptions = 1
 
     try:
-        opts, args = getopt.getopt( argv, "hH:U:P:S:I:vx", ["Host=", "User=", "Password=", "Set=", "Itemname="] )
+        opts, args = getopt.getopt( argv, "hH:U:P:S:I:vx", ["Host=", "User=", "Password=", "Set=", "Itemname=", "CpgOptions="] )
         if not opts:
             print_usage()
             sys.exit(2)
@@ -101,6 +107,8 @@ def main( argv ):
             verbose = 1
         elif opt in ("-x"):
             transfer = 0
+        elif opt in ("-c", "--CpgOptions"):
+            cpgOptions = arg
 
     if sessionHost == "" or sessionUser == "" or sessionPassword == "" or itemname == "":
         if sessionHost == "":
@@ -126,7 +134,7 @@ def main( argv ):
             entries += ( write_system_values( sessionKey, sessionHost, itemname ) )
 
         if "cpgs" in fetchSet:
-            entries += ( write_cpg_values( sessionKey, sessionHost, itemname ) )
+            entries += ( write_cpg_values( sessionKey, sessionHost, itemname, cpgOptions ) )
 
         if verbose != 0:
             print entries
