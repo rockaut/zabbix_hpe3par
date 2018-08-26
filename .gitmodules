@@ -1,3 +1,6 @@
 [submodule "extra/hpe3par_python_sdk"]
 	path = extra/hpe3par_python_sdk
 	url = https://github.com/HewlettPackard/hpe3par_python_sdk.git
+[submodule "extra/govmomi"]
+	path = extra/govmomi
+	url = https://github.com/vmware/govmomi

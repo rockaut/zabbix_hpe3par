@@ -1,2 +1,3 @@
 .vscode/*
 extra/hpe3par_python_sdk/*
+extra/govmomi/*
